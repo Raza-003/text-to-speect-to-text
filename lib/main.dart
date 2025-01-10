@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:text_to_speech/info.dart';
 
 void main() => runApp(TextToSpeechApp());
 
@@ -37,6 +39,17 @@ class HomeScreen extends StatelessWidget {
           title: Text(
             'Speech Utilities',
             style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              showModalBottomSheet<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return const Infopage();
+                },
+              );
+            },
           ),
           centerTitle: true,
           bottom: TabBar(
@@ -238,8 +251,9 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
     if (status.isDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                'Microphone permission is required for speech recognition.')),
+          content:
+              Text('Microphone permission is required for speech recognition.'),
+        ),
       );
     }
   }
@@ -275,6 +289,13 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
     });
   }
 
+  void _copyToClipboard() {
+    Clipboard.setData(ClipboardData(text: _text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Text copied to clipboard!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -299,6 +320,16 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
             onPressed: _isListening ? _stopListening : _startListening,
             icon: Icon(_isListening ? Icons.stop : Icons.mic),
             label: Text(_isListening ? 'Stop Listening' : 'Start Listening'),
+          ),
+          SizedBox(height: 16),
+          // Copy to Clipboard Button under the text
+          ElevatedButton.icon(
+            onPressed: _copyToClipboard,
+            icon: Icon(Icons.copy),
+            label: Text('Copy to Clipboard'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green, // A color that stands out
+            ),
           ),
         ],
       ),
